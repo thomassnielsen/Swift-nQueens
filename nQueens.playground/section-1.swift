@@ -1,17 +1,10 @@
-//
-//  ViewController.swift
-//  nQueens
-//
-//  Created by Thomas Sunde Nielsen on 26.03.15.
-//  Copyright (c) 2015 Thomas Sunde Nielsen. All rights reserved.
-//
+// Playground - noun: a place where people can play
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class NQueens {
     let boardSize = 4
-    let maxNumberOfAttempts = 500000 // Limit number of attempts
+    let maxNumberOfAttempts = 10000 // Limit number of attempts
     let enableAttemptLogging = false
     let loggingDelay = 0.25 // Seconds
     
@@ -20,51 +13,7 @@ class ViewController: UIViewController {
     
     var placed: Array<Int> = []
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let startTime = NSDate()
-        
-        placeQueens()
-        renderBoard(boardSize, found: placed)
-        
-        let time = -startTime.timeIntervalSinceNow
-        println("It took \(runs) placement attempts, taking \(time) sexonds")
-    }
-    
-    func placeQueens() -> Array<Int> {
-        var placed: Array<Int> = []
-        
-        if boardSize < 4 {
-            println("Board too small. Not possible.")
-            return []
-        }
-        
-        while placed.count < boardSize {
-            var found = false
-            let place = placeNewQueen(boardSize, placed: placed)
-            
-            if place == NSNotFound {
-                placed = backstepAndRetry(boardSize, placed: placed)
-            } else {
-                placed.append(place)
-            }
-            
-            if runs > maxNumberOfAttempts {
-                println("Max number of attempts reached. Printing last attempt.")
-                break
-            }
-            
-            if enableAttemptLogging {
-                renderBoard(boardSize, found: placed)
-                usleep(useconds_t(1000000.0 * loggingDelay))
-            }
-        }
-    
-        self.placed = placed
-        return placed
-    }
-    
+    // Check if a certain square is valid.
     func doesQueenConflict (index: Int, found: Array<Int>) -> Bool {
         if found.count == 0 {
             return false
@@ -153,6 +102,41 @@ class ViewController: UIViewController {
         return changed
     }
     
+    // The main run function
+    func placeQueens() -> Array<Int> {
+        var placed: Array<Int> = []
+        
+        if boardSize < 4 {
+            println("Board too small. Not possible.")
+            return []
+        }
+        
+        while placed.count < boardSize {
+            var found = false
+            let place = placeNewQueen(boardSize, placed: placed)
+            
+            if place == NSNotFound {
+                placed = backstepAndRetry(boardSize, placed: placed)
+            } else {
+                placed.append(place)
+            }
+            
+            if runs > maxNumberOfAttempts {
+                println("Max number of attempts reached. Printing last attempt.")
+                break
+            }
+            
+            if enableAttemptLogging {
+                renderBoard(boardSize, found: placed)
+                usleep(useconds_t(1000000.0 * loggingDelay))
+            }
+        }
+        
+        self.placed = placed
+        return placed
+    }
+    
+    
     func renderBoard(boardSize: Int, found: Array<Int>) {
         var rows = 0
         var cols = 0
@@ -174,12 +158,12 @@ class ViewController: UIViewController {
         }
         print(output)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
 
+let before = NSDate()
+var nQueens = NQueens()
+nQueens.placeQueens()
+println("Board: ")
+nQueens.renderBoard(nQueens.boardSize, found: nQueens.placed)
+let timeSpent = -before.timeIntervalSinceNow
+println("placing queens and rendering took \(nQueens.runs) attempts, took \(timeSpent) senconds")
